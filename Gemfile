@@ -16,11 +16,11 @@ gem 'jquery-rails'
 group :development, :test do
   gem 'pry'
   gem 'binding_of_caller'
+  gem 'factory_girl_rails'
 end
 
 group :test do
-  gem 'factory_girl_rails'
-  gem 'rspec-rails'  
+  gem 'rspec-rails'
   gem 'rspec'
 end
 
