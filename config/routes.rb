@@ -1,13 +1,20 @@
 Todo::Application.routes.draw do
-  resources :users do
-    resources :lists, except: [:index]
+  namespace :Api do
+    resources :lists
   end
+  #namespace :Api do
 
-  resources :lists, only: [] do
-    resources :items, only: [:create, :new]
-  end
+    #resources :users do
+      #resources :lists, except: [:index]
+    #end
 
-  resources :items, only: [:destroy]
+    #resources :lists, only: [] do
+      #resources :items, only: [:create, :new]
+    #end
+
+    #resources :items, only: [:destroy]
+
+  #end
 
   root to: 'users#new'
 end

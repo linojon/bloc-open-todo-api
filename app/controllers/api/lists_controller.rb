@@ -1,4 +1,4 @@
-class ListsController < ApplicationController
+class Api::ListsController < ApiController
   before_action :set_user
   before_action :set_list, only: [:show, :edit, :update, :destroy]
 
