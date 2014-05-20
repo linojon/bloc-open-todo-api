@@ -14,6 +14,7 @@ gem 'coffee-rails', '~> 4.0.0'
 gem 'jquery-rails'
 
 group :development, :test do
+  gem 'rest-client'
   gem 'pry'
   gem 'binding_of_caller'
   gem 'factory_girl_rails'
