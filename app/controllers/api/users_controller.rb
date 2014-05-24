@@ -27,7 +27,7 @@ class Api::UsersController < ApiController
   end
 
   def conditions_met
-    true
+    authenticate_with_http_basic {|u, p| User.where( username: u, password: p).present? }
   end
 
 end
