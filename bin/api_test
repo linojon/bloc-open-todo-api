@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require 'restclient'
+puts RestClient.get "http://user1:secret@localhost:3000/api/users"

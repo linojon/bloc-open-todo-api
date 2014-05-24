@@ -19,6 +19,7 @@ group :development, :test do
   gem 'sqlite3'
   gem 'pry'
   gem 'binding_of_caller'
+  gem 'rest_client'
 end
 
 group :test do
