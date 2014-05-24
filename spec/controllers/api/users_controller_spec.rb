@@ -3,10 +3,17 @@ require 'spec_helper'
 describe Api::UsersController do
 
   before do
+    with_authentication
     User.destroy_all
   end
 
   describe "create" do
+    it "requires authentication" do
+      unstub_authentication
+      post :create, { username: 'foo', password: 'secret'}
+      expect(response.status).to eql 403 # forbidden
+    end
+    
     it "creates and returns a new user from username and password params" do
       params = { 'username' => 'testuser', 'password' => 'testpass' }
 
@@ -19,19 +26,24 @@ describe Api::UsersController do
 
     it "returns an error when not given a password" do
       post :create, { username: 'testuser' }
-      expect(response.status).to eql 422
+      expect(response.status).to eql 422 # unprocessable entity
     end
 
     it "returns an error when not given a username" do
       post :create, { password: 'testpass' }
-      expect(response.status).to eql 422
+      expect(response.status).to eql 422 # unprocessable entity
     end
   end
 
   describe "index" do
-
     before do 
       (1..3).each{ |n| User.create( id: n, username: "name#{n}", password: "pass#{n}" ) }
+    end
+
+    it "requires authentication" do
+      unstub_authentication
+      get :index
+      expect(response.status).to eql 403 # forbidden
     end
 
     it "lists all usernames and ids" do
