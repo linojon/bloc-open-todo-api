@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+require 'thor'
+require 'restclient'
+require 'json'
+require 'debugger'
+
+# edit this for you
+TODO_AUTHFILE = 'todo.auth'
+TODO_URL = 'localhost:3000'
+
+class Todo < Thor
+
+  desc "hello NAME", "say hello to NAME"
+  def hello(name)
+    puts "Hello #{name}"
+  end
+
+  desc "authenticate", "authenticate username, password"
+  def authenticate(username, password)
+    debugger
+    `echo "#{username}:#{password}" > #{TODO_AUTHFILE}`
+    response = todo('users')
+  end
+
+  desc "users", "list users"
+  def users
+    users = todo('users')
+    users['users'].each {|user| puts "#{user['id']}: #{user['username']}" }
+  end
+
+  #----
+end
+
+def username_pw
+  @username_pw ||= File.read(TODO_AUTHFILE).strip
+end
+
+def todo(api_path)
+  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}"
+  JSON.parse response
+end
+
+def pp(json)
+  puts json.to_json
+  puts JSON.pretty_generate(JSON.parse json)
+end
+
+Todo.start(ARGV)
