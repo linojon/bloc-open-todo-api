@@ -23,24 +23,25 @@ class Todo < Thor
 
   desc 'users', 'show users'
   def users
-    users = get 'users'
+    users = get_auth 'users'
     users['users'].each {|user| puts "#{user['id']}: #{user['username']}" }
   end
 
   desc 'create_user NAME PW', 'create new user'
   def create_user(username, password)
-    user = post 'users', username: username, password: password
+    user = post_auth 'users', username: username, password: password
   end
 
   desc 'lists', 'show lists for current user'
   def lists
-    lists = get "users/#{current_userid}/lists"
+    lists = get_pw "users/#{current_userid}/lists"
     lists['lists'].each {|list| puts list['name'] }
   end
 
   desc 'create_list NAME', 'create new (private) list'
   def create_list(name)
-    list = post "users/#{current_}/lists", name: name
+    debugger 
+    list = post_pw "users/#{current_userid}/lists", name: name
   end
 
 
@@ -50,7 +51,7 @@ end
 
 def current_userid
   @currentuser_id ||= begin
-    users = get('users')
+    users = get_auth('users')
     user = users['users'].detect {|user| user['username'] == current_username } if users
     user['id'] if user
   end
@@ -60,17 +61,32 @@ def current_username
   username_pw.split(':').first
 end
 
+def current_password
+  username_pw.split(':').last
+end
+
 def username_pw
   @username_pw ||= File.read(TODO_AUTHFILE).strip
 end
 
-def get(api_path)
-  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}"
+def get_auth(api_path)
+  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}", accept: :json
   JSON.parse response
 end
 
-def post(api_path, params=[])
+def post_auth(api_path, params=[])
+  debugger
   response = RestClient.post "http://#{username_pw}@#{TODO_URL}/api/#{api_path}", params.to_json, content_type: :json, accept: :json
+  JSON.parse response
+end
+
+def get_pw(api_path)
+  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}?password=#{current_password}", accept: :json
+  JSON.parse response
+end
+
+def post_pw(api_path, params=[])
+  response = RestClient.post "http://#{username_pw}@#{TODO_URL}/api/#{api_path}", params.merge(password: current_password).to_json, content_type: :json, accept: :json
   JSON.parse response
 end
 

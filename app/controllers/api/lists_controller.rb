@@ -27,7 +27,7 @@ class Api::ListsController < ApiController
   private
 
   def new_list_params
-    params.permit(:name, :permissions)
+    params.permit(:user_id, :name, :permissions)
   end
 
   def find_user
