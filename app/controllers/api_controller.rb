@@ -4,6 +4,14 @@ class ApiController < ApplicationController
 
   private
 
+  def permission_denied?
+    permission_denied_error unless conditions_met
+  end
+
+  def conditions_met
+    false # default, override in api controller
+  end
+
   def permission_denied_error
     error(403, 'Permission Denied')
   end

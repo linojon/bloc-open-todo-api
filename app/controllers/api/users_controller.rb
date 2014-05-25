@@ -22,10 +22,6 @@ class Api::UsersController < ApiController
     params.permit(:username, :password)
   end
 
-  def permission_denied?
-    permission_denied_error unless conditions_met
-  end
-
   def conditions_met
     authenticate_with_http_basic {|u, p| User.where( username: u, password: p).present? }
   end
