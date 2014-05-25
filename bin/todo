@@ -10,29 +10,54 @@ TODO_URL = 'localhost:3000'
 
 class Todo < Thor
 
-  desc "hello NAME", "say hello to NAME"
-  def hello(name)
-    puts "Hello #{name}"
-  end
-
-  desc "authenticate", "authenticate username, password"
-  def authenticate(username, password)
+  desc 'login USERNAME PASSWORD', 'log in as the current user'
+  def login(username, password)
     `echo "#{username}:#{password}" > #{TODO_AUTHFILE}`
-    response = get 'users'
+    response = get 'users' # just to see if it authenticates
   end
 
-  desc "users", "list users"
+  desc 'whoami', 'show current user name and id'
+  def whoami
+    puts "#{current_userid}: #{current_username}"
+  end
+
+  desc 'users', 'show users'
   def users
     users = get 'users'
     users['users'].each {|user| puts "#{user['id']}: #{user['username']}" }
   end
 
-  desc "create_user NAME PW", "create new user"
+  desc 'create_user NAME PW', 'create new user'
   def create_user(username, password)
     user = post 'users', username: username, password: password
   end
 
-  #----
+  desc 'lists', 'show lists for current user'
+  def lists
+    lists = get "users/#{current_userid}/lists"
+    lists['lists'].each {|list| puts list['name'] }
+  end
+
+  desc 'create_list NAME', 'create new (private) list'
+  def create_list(name)
+    list = post "users/#{current_}/lists", name: name
+  end
+
+
+end
+
+#-----------
+
+def current_userid
+  @currentuser_id ||= begin
+    users = get('users')
+    user = users['users'].detect {|user| user['username'] == current_username } if users
+    user['id'] if user
+  end
+end
+
+def current_username
+  username_pw.split(':').first
 end
 
 def username_pw
@@ -40,7 +65,7 @@ def username_pw
 end
 
 def get(api_path)
-  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}", {:accept => :json}
+  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}"
   JSON.parse response
 end
 
