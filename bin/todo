@@ -17,15 +17,19 @@ class Todo < Thor
 
   desc "authenticate", "authenticate username, password"
   def authenticate(username, password)
-    debugger
     `echo "#{username}:#{password}" > #{TODO_AUTHFILE}`
-    response = todo('users')
+    response = get 'users'
   end
 
   desc "users", "list users"
   def users
-    users = todo('users')
+    users = get 'users'
     users['users'].each {|user| puts "#{user['id']}: #{user['username']}" }
+  end
+
+  desc "create_user NAME PW", "create new user"
+  def create_user(username, password)
+    user = post 'users', username: username, password: password
   end
 
   #----
@@ -35,8 +39,13 @@ def username_pw
   @username_pw ||= File.read(TODO_AUTHFILE).strip
 end
 
-def todo(api_path)
-  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}"
+def get(api_path)
+  response = RestClient.get "http://#{username_pw}@#{TODO_URL}/api/#{api_path}", {:accept => :json}
+  JSON.parse response
+end
+
+def post(api_path, params=[])
+  response = RestClient.post "http://#{username_pw}@#{TODO_URL}/api/#{api_path}", params.to_json, content_type: :json, accept: :json
   JSON.parse response
 end
 
