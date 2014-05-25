@@ -3,35 +3,39 @@ require 'spec_helper'
 describe Api::UsersController do
 
   before do
-    with_authentication
     User.destroy_all
   end
 
   describe "create" do
     it "requires authentication" do
-      unstub_authentication
       post :create, { username: 'foo', password: 'secret'}
       expect(response.status).to eql 403 # forbidden
     end
-    
-    it "creates and returns a new user from username and password params" do
-      params = { 'username' => 'testuser', 'password' => 'testpass' }
 
-      expect{ post :create, params }
-        .to change{ User.where(params).count }
-        .by 1
+    context "with authentication" do
+      before do
+        with_authentication
+      end
 
-      expect(JSON.parse(response.body)).to eql params
-    end
+      it "creates and returns a new user from username and password params" do
+        params = { 'username' => 'testuser', 'password' => 'testpass' }
 
-    it "returns an error when not given a password" do
-      post :create, { username: 'testuser' }
-      expect(response.status).to eql 422 # unprocessable entity
-    end
+        expect{ post :create, params }
+          .to change{ User.where(params).count }
+          .by 1
 
-    it "returns an error when not given a username" do
-      post :create, { password: 'testpass' }
-      expect(response.status).to eql 422 # unprocessable entity
+        expect(JSON.parse(response.body)).to eql params
+      end
+
+      it "returns an error when not given a password" do
+        post :create, { username: 'testuser' }
+        expect(response.status).to eql 422 # unprocessable entity
+      end
+
+      it "returns an error when not given a username" do
+        post :create, { password: 'testpass' }
+        expect(response.status).to eql 422 # unprocessable entity
+      end
     end
   end
 
@@ -41,22 +45,27 @@ describe Api::UsersController do
     end
 
     it "requires authentication" do
-      unstub_authentication
       get :index
       expect(response.status).to eql 403 # forbidden
     end
 
-    it "lists all usernames and ids" do
-      get :index
+    context "with authentication" do
+      before do
+        with_authentication
+      end
 
-      expect(JSON.parse(response.body)).to eql( 
-        { 'users' => 
-          [
-            { 'id' => 1, 'username' => 'name1' },
-            { 'id' => 2, 'username' => 'name2' },
-            { 'id' => 3, 'username' => 'name3' }
-          ]
-        })
+      it "lists all usernames and ids" do
+        get :index
+
+        expect(JSON.parse(response.body)).to eql( 
+          { 'users' => 
+            [
+              { 'id' => 1, 'username' => 'name1' },
+              { 'id' => 2, 'username' => 'name2' },
+              { 'id' => 3, 'username' => 'name3' }
+            ]
+          })
+      end
     end
   end
 end

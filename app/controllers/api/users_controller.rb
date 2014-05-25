@@ -1,13 +1,13 @@
 class Api::UsersController < ApiController
 
   def index
-    return if permission_denied?
+    return permission_denied_error unless authenticated?
     users = User.all
     render json: users, each_serializer: UsersSerializer
   end
 
   def create
-    return if permission_denied?
+    return permission_denied_error unless authenticated?
     user = User.new(new_user_params)
     if user.save
       render json: user, root: false, status: :created # 201
@@ -22,7 +22,7 @@ class Api::UsersController < ApiController
     params.permit(:username, :password)
   end
 
-  def conditions_met
+  def authenticated?
     authenticate_with_http_basic {|u, p| User.where( username: u, password: p).present? }
   end
 

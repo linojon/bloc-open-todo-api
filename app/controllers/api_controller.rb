@@ -4,16 +4,12 @@ class ApiController < ApplicationController
 
   private
 
-  def permission_denied?
-    permission_denied_error unless conditions_met
-  end
-
-  def conditions_met
-    false # default, override in api controller
-  end
-
   def permission_denied_error
     error(403, 'Permission Denied')
+  end
+
+  def user_not_found_error
+    error(404, 'User not found')
   end
 
   def error(status, message = 'Something went wrong')
