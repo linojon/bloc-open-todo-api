@@ -26,6 +26,9 @@ group :test do
   gem 'factory_girl_rails'
   gem 'rspec-rails'  
   gem 'rspec'
+  gem 'capybara'
+  gem 'selenium-webdriver'
+  gem 'database_cleaner'
 end
 
 # Use Uglifier as compressor for JavaScript assets
