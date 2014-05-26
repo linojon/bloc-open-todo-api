@@ -32,5 +32,8 @@ module Todo
       g.javascripts = false
       g.template_engine :haml
     end
+
+    # suppress warning "[deprecated] I18n.enforce_available_locales will default to true in the future"
+    config.i18n.enforce_available_locales = true
   end
 end

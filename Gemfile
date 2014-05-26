@@ -27,7 +27,8 @@ group :test do
   gem 'rspec-rails'  
   gem 'rspec'
   gem 'capybara'
-  gem 'selenium-webdriver'
+  #gem 'selenium-webdriver'
+  gem 'capybara-webkit'
   gem 'database_cleaner'
 end
 
