@@ -33,13 +33,13 @@ class Todo < Thor
 
   desc 'lists', 'show lists for current user'
   def lists
-    lists = get_pw "users/#{current_userid}/lists"
+    lists = get_pw "users/#{userid}/lists"
     lists['lists'].each {|list| puts list['name'] }
   end
 
   desc 'create_list NAME', 'create new (private) list'
   def create_list(name)
-    list = post_pw "users/#{current_userid}/lists", name: name
+    list = post_pw "users/#{userid}/lists", name: name
   end
 end
 
@@ -84,12 +84,12 @@ def post_auth(api_path, params=[])
 end
 
 def get_pw(api_path)
-  response = RestClient.get "#{api_url}/#{api_path}?password=#{current_password}", accept: :json
+  response = RestClient.get "#{api_url}/#{api_path}?password=#{password}", accept: :json
   JSON.parse response
 end
 
 def post_pw(api_path, params=[])
-  response = RestClient.post "#{api_url}/#{api_path}", params.merge(password: current_password).to_json, content_type: :json, accept: :json
+  response = RestClient.post "#{api_url}/#{api_path}", params.merge(password: password).to_json, content_type: :json, accept: :json
   JSON.parse response
 end
 

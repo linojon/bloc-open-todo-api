@@ -22,4 +22,46 @@ describe "todo", type: :feature, js: true do
     expect(result.strip).to eql "1: testuser"
   end
 
+  it "users" do
+    User.create( username: "user2", password: "password" )
+    result = `bin/todo users -f test.auth`
+    expect(result).to eql( 
+%Q{1: testuser
+2: user2
+})
+  end
+
+  it "create_user" do
+    result = `bin/todo create_user myname secret -f test.auth`
+    result = `bin/todo users -f test.auth`
+    expect(result).to eql(
+%Q{1: testuser
+2: myname
+})
+  end
+
+  it "lists" do
+    user = User.first
+    user.lists.create name: 'testlist'
+    user.lists.create name: 'testlist2'
+
+    result = `bin/todo lists -f test.auth`
+    expect(result).to eql(
+%Q{testlist
+testlist2
+})
+  end
+
+  it "create_list" do
+    user = User.first
+    user.lists.create name: 'testlist'
+    result = `bin/todo create_list testlist9 -f test.auth`
+
+    result = `bin/todo lists -f test.auth`
+    expect(result).to eql(
+%Q{testlist
+testlist9
+})
+  end
+
 end
