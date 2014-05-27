@@ -5,18 +5,21 @@ require 'json'
 require 'debugger'
 
 class Todo < Thor
-  class_option :authfile, aliases: 'f', default: 'todo.auth'
+  @config = nil
 
-  #-----
+  class_option :configfile, aliases: 'c', banner: 'FNAME', desc: 'config filename', default: 'todo.conf'
+
+  #-----------
 
   desc 'login USERNAME PASSWORD', 'log in as the current user'
   def login(uname, pwd, ho="localhost:3000")
-    `echo "#{uname};#{pwd};#{ho}" > #{options[:authfile]}`
+    save_config( username: uname, password: pwd, host: ho )
     response = get_auth 'users' # just to see if it authenticates
   end
 
   desc 'whoami', 'show current user name and id'
   def whoami
+    puts config[:b]
     puts "#{userid}: #{username}"
   end
 
@@ -45,29 +48,46 @@ end
 
 #-----------
 
+def config
+  @config ||= load_config
+end
+
+def load_config
+  if !File.exists? options[:configfile]
+    puts "#{options[:configfile]} not found."
+    exit 1
+  end
+  YAML::load_file options[:configfile]
+end
+
+def save_config( conf )
+  File.open( options[:configfile], 'w' ) do |h|
+    h.write conf.to_yaml
+  end
+end
+
+def username
+  config[:username]
+end
+
+def password
+  config[:password]
+end
+
+def host
+  config[:host]
+end
+
 def userid
   @user_id ||= begin
+    # todo: need an api to get single user id
     users = get_auth('users')
     user = users['users'].detect {|user| user['username'] == username } if users
     user['id'] if user
   end
 end
 
-def username
-  auth_info.split(';')[0]
-end
-
-def password
-  auth_info.split(';')[1]
-end
-
-def host
-  auth_info.split(';')[2]
-end
-
-def auth_info
-  @auth_info ||= File.read(options[:authfile]).strip
-end
+#-----------
 
 def api_url
   "http://#{username}:#{password}@#{host}/api"
@@ -93,9 +113,6 @@ def post_pw(api_path, params=[])
   JSON.parse response
 end
 
-def pp(json)
-  puts json.to_json
-  puts JSON.pretty_generate(JSON.parse json)
-end
+#-----------
 
 Todo.start(ARGV)
